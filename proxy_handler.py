@@ -53,9 +53,11 @@ def parse_vless(parsed, params):
     if net_type == "ws":
         transport = {"type": "ws"}
         path = params.get("path", [""])[0]
-        if path: transport["path"] = unquote(path)
+        if path: 
+            path = unquote(path)
+            transport["path"] = path if path.startswith("/") else "/" + path
         host = params.get("host", [""])[0]
-        if host: transport["headers"] = {"Host": host}
+        if host: transport["headers"] = [{"key": "Host", "value": [host]}]
         outbound["transport"] = transport
     return outbound
 
@@ -75,8 +77,9 @@ def parse_vmess(url_str):
         outbound["tls"] = tls
     if cfg.get("net") == "ws":
         transport = {"type": "ws"}
-        if cfg.get("path"): transport["path"] = cfg["path"]
-        if cfg.get("host"): transport["headers"] = {"Host": cfg["host"]}
+        path = cfg.get("path", "")
+        if path: transport["path"] = path if path.startswith("/") else "/" + path
+        if cfg.get("host"): transport["headers"] = [{"key": "Host", "value": [cfg["host"]]}]
         outbound["transport"] = transport
     return outbound
 
