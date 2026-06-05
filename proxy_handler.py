@@ -53,11 +53,8 @@ def parse_vless(parsed, params):
     if net_type == "ws":
         transport = {"type": "ws"}
         path = params.get("path", [""])[0]
-        if path: 
-            path = unquote(path)
-            transport["path"] = path if path.startswith("/") else "/" + path
+        if path: transport["path"] = unquote(path)
         host = params.get("host", [""])[0]
-        # 修复代理相关代码：适配 sing-box 1.11.0 强类型的 HTTPHeader 对象格式
         if host: transport["headers"] = {"Host": host}
         outbound["transport"] = transport
     return outbound
@@ -78,9 +75,7 @@ def parse_vmess(url_str):
         outbound["tls"] = tls
     if cfg.get("net") == "ws":
         transport = {"type": "ws"}
-        path = cfg.get("path", "")
-        if path: transport["path"] = path if path.startswith("/") else "/" + path
-        # 修复代理相关代码：适配 sing-box 1.11.0 强类型的 HTTPHeader 对象格式
+        if cfg.get("path"): transport["path"] = cfg["path"]
         if cfg.get("host"): transport["headers"] = {"Host": cfg["host"]}
         outbound["transport"] = transport
     return outbound
