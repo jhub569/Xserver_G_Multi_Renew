@@ -107,6 +107,19 @@ jobs:
             sleep 1
           done
 
+          # 修复核心：将全局代理环境变量注入到当前 Shell 环境中，确保后续的 node 或 Playwright 能无缝继承
+          export HTTP_PROXY="http://127.0.0.1:8080"
+          export HTTPS_PROXY="http://127.0.0.1:8080"
+          export http_proxy="http://127.0.0.1:8080"
+          export https_proxy="http://127.0.0.1:8080"
+          
+          # 将环境变量同步写入到 GitHub Actions 的全局环境文件中，
+          # 这样即便跨越 Step 步骤，后续的 "Run Extension Script" 也能完美调用该本地代理通道。
+          echo "HTTP_PROXY=http://127.0.0.1:8080" >> $GITHUB_ENV
+          echo "HTTPS_PROXY=http://127.0.0.1:8080" >> $GITHUB_ENV
+          echo "http_proxy=http://127.0.0.1:8080" >> $GITHUB_ENV
+          echo "https_proxy=http://127.0.0.1:8080" >> $GITHUB_ENV
+
       - name: Run Extension Script
         env:
           ACC: ${{ matrix.account_index == 'SINGLE' && secrets.EML || secrets[format('EML_{0}', matrix.account_index)] }}
